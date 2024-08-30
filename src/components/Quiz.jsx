@@ -6,36 +6,21 @@ import Question from "./Question.jsx";
 
 export default function Quiz() {
     const [userAnswers, setUserAnswers] = useState([]);
-    const [answerState, setAnswerState] = useState(''); // state used to flag the answer status ('' = not responded, 'answered' = answer selected, etc.)
+    // getting rid of userState state management from QUiz component so that Question component takes care of it and we don't need to pass it as prop
 
     // It's a good practice to manage as less amount of state values as possible
     // That's why it's better to derive computed values when possible
     // if answerState is not '', that menas the answer has  been selected so the active question remains to the last one already answered
-    const currentQuestionIndex = answerState === '' ? userAnswers.length : userAnswers.length - 1;
+    const currentQuestionIndex = userAnswers.length;
 
     const isQuizComplete = currentQuestionIndex === QUESTIONS.length;
 
     // We need to wrap the handle answer selection functions to be used as onTimeout prop by QuestionTimer
     const handleSelectAnswer = useCallback(function handleSelectQuestion(selectedAnswer) {
-        setAnswerState('answered');
         setUserAnswers((prevUserAnswers) => {
             return [...prevUserAnswers, selectedAnswer];
         });
-
-        // after one second the selected answer is marked as answered, and after other second, it's marked as correct ot wrong accordingly
-        setTimeout(() => {
-            if(selectedAnswer === QUESTIONS[currentQuestionIndex].answers[0]){
-                setAnswerState('correct');
-            }
-            else {
-                setAnswerState('wrong');
-            }
-
-            setTimeout(() => {
-                setAnswerState('');
-            }, 1000);
-        }, 1000);
-    }, [currentQuestionIndex]);
+    }, []);
 
     const handleSkipAnswer = useCallback(() => handleSelectAnswer(null), [handleSelectAnswer]);
 
@@ -52,12 +37,10 @@ export default function Quiz() {
         <div id="quiz">
                 {/* This component is used as trick to rerender the question text and answers only when the active question index changes by using the key prop */}
                 {/* Note that using the same key for more than one sibling component is not allowed by react */}
+                {/* We get rid of many props as now Question manages more state logic and we avoid moving state down */}
                 <Question 
                     key={currentQuestionIndex}
-                    questionText={QUESTIONS[currentQuestionIndex].text}
-                    answers={QUESTIONS[currentQuestionIndex].answers}
-                    answerState={answerState}
-                    selectedAnswer={userAnswers[userAnswers.length - 1]}
+                    index={currentQuestionIndex}// key prop can be only used by react, so we need to pass this prop despite it has the same value than key
                     onSelectAnswer={handleSelectAnswer}
                     onSkipAnswer={handleSkipAnswer}/>
         </div>
