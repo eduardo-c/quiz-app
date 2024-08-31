@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export default function QuestionTimer({ timeout, onTimeout}) {
+export default function QuestionTimer({ timeout, onTimeout, mode}) {
     const [remainingTime, setRemainingTime] = useState(timeout);
 
     // Note we need to set the timers and intervals in side effects to avoid setting multiple timers eveery time the component re-renders
@@ -14,7 +14,7 @@ export default function QuestionTimer({ timeout, onTimeout}) {
             clearTimeout(timer);
         };
     }, [timeout, onTimeout]);// Rememenr that we need to pass any prop or state value used by side effect as dependency
-
+    
     useEffect(() => {
         const interval = setInterval(() => {
             setRemainingTime((prevRemainingTime) => prevRemainingTime - 100);
@@ -26,6 +26,10 @@ export default function QuestionTimer({ timeout, onTimeout}) {
     }, []);
 
     return (
-        <progress id="question-time" max={timeout} value={remainingTime} />
+        <progress 
+            id="question-time" 
+            max={timeout} 
+            value={remainingTime} 
+            className={mode}/>
     );
 }
